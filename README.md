@@ -79,6 +79,6 @@ Join our community of developers creating universal apps.
 
 ----
 
-Copyright © 2024 Pollen Lab.
+Copyright © 2024-2025 Pollen Lab.
 Developed under Ethereum Foundation Grant FY24-1738.
 In collaboration with Enaleia International (for research and field validation).
