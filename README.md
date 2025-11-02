@@ -1,6 +1,6 @@
 # Intro
 
-The mobile app for Enaleia's operation and its partners, including recyclers and manufacturers, streamlines waste management and data tracking across the operational chain.
+The mobile app demonstrating BlokFlow technologies for the use of Enaleia's operation and its partners, including recyclers and manufacturers, streamlines waste management and data tracking across the operational chain.
 
 ### Operational Flow
 **1. At the Port:**
@@ -80,5 +80,4 @@ Join our community of developers creating universal apps.
 ----
 
 Copyright © 2024-2025 Pollen Lab.
-Developed under Ethereum Foundation Grant FY24-1738.
-In collaboration with Enaleia International (for research and field validation).
+BlokFlow™️ technology is an intellectual property of Pollen Labs.
