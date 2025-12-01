@@ -223,7 +223,7 @@ const SettingsScreen = () => {
 
             <View className="items-center mt-2 mb-4 px-4">
             <Text className="text-sm font-dm-regular text-gray-500">
-              Version {version}  - Testnet
+              Version {version}  - Mainnet / Optimism
             </Text>
           </View>
 
