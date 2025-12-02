@@ -38,9 +38,7 @@
         "android.permission.RECORD_AUDIO"
       ],
       "package": "com.anonymous.enaleia",
-      "userInterfaceStyle": "light",
-      "targetSdkVersion": 35,
-      "compileSdkVersion": 35
+      "userInterfaceStyle": "light"
     },
     "web": {
       "bundler": "metro",
