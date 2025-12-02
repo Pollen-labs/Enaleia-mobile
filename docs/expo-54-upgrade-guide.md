@@ -237,5 +237,67 @@ module.exports = config;
 - [Expo Issue #38108: expo-updates ReferenceError](https://github.com/expo/expo/issues/38108)
 - [NativeWind Issue #1570: Babel plugin error with Expo 54](https://github.com/nativewind/nativewind/issues/1570)
 
+## Android Build Issues
+
+### Error: Reanimated Requires New Architecture
+
+**Error Message:**
+```
+[Reanimated] Reanimated requires new architecture to be enabled.
+Please enable it by setting `newArchEnabled` to `true` in `gradle.properties`.
+```
+
+**Root Cause:**
+React Native Reanimated v4+ requires the New Architecture to be enabled. There was a mismatch between:
+- `app.json` had `"newArchEnabled": false`
+- `android/gradle.properties` had `newArchEnabled=true`
+
+**Solution:**
+Enable New Architecture consistently across both configuration files.
+
+**File:** `app.json`
+```json
+{
+  "expo": {
+    "newArchEnabled": true,
+    // ... rest of config
+  }
+}
+```
+
+**File:** `android/gradle.properties`
+```properties
+# Already set to true
+newArchEnabled=true
+```
+
+### Important Notes About New Architecture
+
+1. **Expo SDK 54 Compatibility**: Expo SDK 54 with React Native 0.81 fully supports New Architecture
+2. **Reanimated v4 Requirement**: Reanimated 4.1.1+ (bundled with Expo SDK 54) requires New Architecture
+3. **No Downgrading**: Do not downgrade Reanimated to v3 as it may cause other compatibility issues
+4. **iOS Configuration**: For iOS, you may need to run `pod install` after enabling New Architecture
+
+### After Enabling New Architecture
+
+If you encounter issues after enabling New Architecture:
+
+**For Android:**
+```bash
+cd android
+./gradlew clean
+cd ..
+eas build --platform android
+```
+
+**For iOS:**
+```bash
+cd ios
+rm -rf Pods Podfile.lock
+pod install
+cd ..
+eas build --platform ios
+```
+
 ## Date
 December 1, 2025
