@@ -3,6 +3,11 @@ const path = require("path");
 
 const config = getDefaultConfig(__dirname);
 
+config.transformer = {
+  ...config.transformer,
+  babelTransformerPath: require.resolve("@lingui/metro-transformer/expo"),
+};
+
 config.resolver.sourceExts.push("svg");
 
 config.resolver.extraNodeModules = {

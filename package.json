@@ -27,10 +27,10 @@
     "preset": "jest-expo"
   },
   "dependencies": {
-    "@expo/metro-runtime": "~6.1.2",
     "@directus/sdk": "^17.0.2",
     "@ethereum-attestation-service/eas-sdk": "^2.7.0",
     "@ethersproject/providers": "^5.7.2",
+    "@expo/metro-runtime": "~6.1.2",
     "@expo/vector-icons": "^15.0.3",
     "@formatjs/intl-locale": "^4.2.10",
     "@formatjs/intl-pluralrules": "^5.4.3",
@@ -40,8 +40,8 @@
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/netinfo": "11.4.1",
     "@react-native-picker/picker": "2.11.1",
-    "@react-navigation/native": "^7.0.14",
-    "@react-navigation/native-stack": "^7.0.0",
+    "@react-navigation/native": "^7.1.22",
+    "@react-navigation/native-stack": "^7.8.2",
     "@tanstack/react-form": "^1.3.1",
     "@tanstack/zod-form-adapter": "^0.42.1",
     "buffer": "^6.0.3",
