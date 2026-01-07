@@ -495,14 +495,14 @@ const NewActionScreen = () => {
         contentContainerStyle={{ flex: 1 }}
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 0} // Account for header + status bar
       >
-        <View className="absolute top-20 right-[-30px] bg-white-sand opacity-60">
+        {/* <View className="absolute top-20 right-[-30px] bg-white-sand opacity-60">
           <Image
             source={require("@/assets/images/animals/Turtle.png")}
             className="w-[223px] h-[228px]"
             accessibilityLabel="Decorative turtle illustration"
             accessibilityRole="image"
           />
-        </View>
+        </View> */}
         <View className="flex-row items-center justify-between pb-4">
           <form.Subscribe selector={(state) => state.values}>
             {(values) => {
