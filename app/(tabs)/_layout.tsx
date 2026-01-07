@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Tabs } from "expo-router/tabs";
+import { Tabs } from "expo-router";
 import React from "react";
 import { useQueue } from "@/contexts/QueueContext";
 import { QueueItemStatus } from "@/types/queue";
@@ -19,6 +19,7 @@ const TabsLayout = () => {
         headerShown: false,
         tabBarActiveTintColor: "#0D0D0D",
         tabBarInactiveTintColor: "#8E8E93",
+        tabBarHideOnKeyboard: true,
         tabBarStyle: Platform.select({
           ios: {
             position: 'absolute',
