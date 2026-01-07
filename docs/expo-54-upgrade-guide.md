@@ -197,6 +197,12 @@ const path = require("path");
 
 const config = getDefaultConfig(__dirname);
 
+// IMPORTANT: Configure Lingui transformer first
+config.transformer = {
+  ...config.transformer,
+  babelTransformerPath: require.resolve("@lingui/metro-transformer/expo"),
+};
+
 config.resolver.sourceExts.push("svg");
 
 config.resolver.extraNodeModules = {
@@ -220,6 +226,8 @@ config.resolver.resolveRequest = (context, moduleName, platform) => {
 
 module.exports = config;
 ```
+
+**Critical Note:** The Lingui transformer configuration must be included in `metro.config.js`. Without it, you'll encounter `nullthrows` errors from Metro bundler during module resolution.
 
 ## Key Takeaways
 
@@ -299,5 +307,163 @@ cd ..
 eas build --platform ios
 ```
 
-## Date
-December 1, 2025
+## React Navigation Issues
+
+### Error: Couldn't find a LinkingContext context
+
+**Error Message:**
+```
+ERROR [Error: Couldn't find a LinkingContext context.]
+
+Code: LinkingContext.js
+  5 | export const LinkingContext = /*#__PURE__*/React.createContext({
+  6 |   get options() {
+>  7 |     throw new Error(MISSING_CONTEXT_ERROR);
+     |                    ^
+  8 |   }
+  9 | });
+ 10 | LinkingContext.displayName = 'LinkingContext';
+```
+
+**Root Cause:**
+This error occurs due to version mismatches between `@react-navigation` packages. When `expo-router` is updated, it may pull in newer versions of `@react-navigation/bottom-tabs` that require matching versions of `@react-navigation/native`.
+
+**Symptoms:**
+- Multiple instances of `@react-navigation/native` in the dependency tree (not deduped)
+- Different versions between root dependencies and expo-router's nested dependencies
+- LinkingContext not being properly provided to the tab bar component
+
+**Solution:**
+
+1. **Incorrect Import Path:**
+
+   **File:** `app/(tabs)/_layout.tsx`
+
+   Change from:
+   ```typescript
+   import { Tabs } from "expo-router/tabs";
+   ```
+
+   To:
+   ```typescript
+   import { Tabs } from "expo-router";
+   ```
+
+2. **Version Alignment:**
+
+   Check dependency tree:
+   ```bash
+   npm ls @react-navigation/native
+   ```
+
+   If you see multiple versions (not all showing `deduped`), fix by reinstalling:
+   ```bash
+   rm -rf node_modules package-lock.json
+   npm install
+   ```
+
+   Verify all packages now use the same version:
+   ```bash
+   npm ls @react-navigation/native
+   # Should show all packages deduped to the same version
+   ```
+
+3. **Manual Version Update (if needed):**
+
+   If the issue persists, check what version `expo-router` expects:
+   ```bash
+   npm ls expo-router
+   ```
+
+   Then install matching versions in your `package.json`:
+   ```bash
+   npm install @react-navigation/native@7.1.22 @react-navigation/native-stack@7.8.2
+   ```
+
+**Verification:**
+After fixing, run `npm ls @react-navigation/native` and ensure output shows:
+```
+enaleia@1.0.0
++-- @react-navigation/native-stack@7.x.x
+| `-- @react-navigation/native@7.1.x deduped
++-- @react-navigation/native@7.1.x
+`-- expo-router@6.0.x
+  +-- @react-navigation/bottom-tabs@7.x.x
+  | `-- @react-navigation/native@7.1.x deduped
+  `-- @react-navigation/native@7.1.x deduped
+```
+
+All instances should show `deduped`, indicating they share the same package instance.
+
+## QR Scanner Component Issues
+
+### Missing useCallback Dependencies
+
+**File:** `components/features/scanning/QRTextInput.tsx`
+
+**Issue:**
+The `handleQRScan` callback was missing `setScanner` and `setError` from its dependency array, causing stale closures.
+
+**Before:**
+```typescript
+const handleQRScan = useCallback(
+  (scannedData: unknown) => {
+    // ... uses setScanner(false) and setError(null)
+  },
+  [id, onChangeText, onScanComplete]  // Missing setScanner, setError
+);
+```
+
+**After:**
+```typescript
+const handleQRScan = useCallback(
+  (scannedData: unknown) => {
+    // ... uses setScanner(false) and setError(null)
+  },
+  [id, onChangeText, onScanComplete, setScanner, setError]  // Fixed
+);
+```
+
+**Symptoms:**
+- QR scanner modal doesn't close after successful scan
+- Scanner appears to hang after scanning a code
+- State updates don't reflect properly
+
+## Metro Bundler Errors
+
+### Error: Got unexpected undefined (nullthrows)
+
+**Error Message:**
+```
+ERROR Error: Got unexpected undefined
+  at nullthrows (node_modules/nullthrows/nullthrows.js:7:15)
+  at Graph._recursivelyCommitModule (node_modules/metro/src/DeltaBundler/Graph.js:203:51)
+```
+
+**Root Cause:**
+Missing Lingui transformer configuration in `metro.config.js`. The Metro bundler cannot properly transform Lingui macro imports without the custom transformer.
+
+**Solution:**
+Ensure `metro.config.js` includes the Lingui transformer configuration at the top:
+
+```javascript
+const { getDefaultConfig } = require("expo/metro-config");
+const config = getDefaultConfig(__dirname);
+
+// CRITICAL: Must include Lingui transformer
+config.transformer = {
+  ...config.transformer,
+  babelTransformerPath: require.resolve("@lingui/metro-transformer/expo"),
+};
+
+// ... rest of configuration
+```
+
+**Important Notes:**
+- The transformer must be configured before other Metro customizations
+- Without this, any file using Lingui macros (`@lingui/macro`) will fail to bundle
+- This is required even though Lingui babel plugin is in `babel.config.js`
+
+## Dates
+- Initial Upgrade: December 1, 2025
+- Additional Issues Fixed: January 6, 2026
