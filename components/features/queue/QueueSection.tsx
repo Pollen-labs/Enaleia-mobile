@@ -36,6 +36,7 @@ const QueueSection = ({
   const [retryCountdown, setRetryCountdown] = useState<number | null>(null);
   const [lastHealthCheck, setLastHealthCheck] = useState<{ time: number; result: HealthCheckResult } | null>(null);
   const [showRetryButton, setShowRetryButton] = useState(true);
+  const [consecutiveFailures, setConsecutiveFailures] = useState<{ directus: number; eas: number }>({ directus: 0, eas: 0 });
 
   // Sort items by most recent first
   const sortedItemsMemo = useMemo(() => 
@@ -80,6 +81,12 @@ const QueueSection = ({
         const healthResult = await checkServicesHealth();
         if (isMounted) {
           setLastHealthCheck({ time: Date.now(), result: healthResult });
+
+          // Update consecutive failure counters
+          setConsecutiveFailures(prev => ({
+            directus: healthResult.directus ? 0 : prev.directus + 1,
+            eas: healthResult.eas ? 0 : prev.eas + 1
+          }));
         }
       } catch (error) {
         console.error('Health check failed:', error);
@@ -101,6 +108,12 @@ const QueueSection = ({
               allHealthy: false
             }
           });
+
+          // Increment failure counters on exception
+          setConsecutiveFailures(prev => ({
+            directus: prev.directus + 1,
+            eas: prev.eas + 1
+          }));
         }
       }
     };
@@ -231,8 +244,16 @@ const QueueSection = ({
   };
 
   const shouldShowServiceError = (service: 'directus' | 'eas') => {
-    // Show error if health check indicates service is down
-    return !lastHealthCheck?.result[service];
+    // Only show error if:
+    // 1. There are active items in the queue
+    // 2. Service has failed at least 2 consecutive times (grace period)
+    // 3. Health check indicates service is down
+    const FAILURE_THRESHOLD = 2;
+    return (
+      items.length > 0 &&
+      consecutiveFailures[service] >= FAILURE_THRESHOLD &&
+      !lastHealthCheck?.result[service]
+    );
   };
 
   if (!hasItems && !alwaysShow) return null;
