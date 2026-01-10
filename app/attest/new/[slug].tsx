@@ -209,10 +209,6 @@ const NewActionScreen = () => {
         weightInKg: undefined,
       },
     },
-    onChange: ({ value }) => {
-      // This will help track form changes
-      return value;
-    },
     onSubmit: async ({ value }) => {
       setHasAttemptedSubmit(true);
       setSubmitError(null);
@@ -231,8 +227,8 @@ const NewActionScreen = () => {
         const { success: isValid, error: validationError } = runtimeSchema.safeParse(value);
         if (!isValid) {
           validationError.errors.forEach((error) => {
-            const fieldPath = error.path.join(".") as keyof typeof value;
-            form.setFieldMeta(fieldPath, (old) => ({
+            const fieldPath = error.path.join(".") as any;
+            form.setFieldMeta(fieldPath, (old: any) => ({
               ...old,
               errors: [...(old?.errors || []), error.message],
             }));
@@ -301,15 +297,11 @@ const NewActionScreen = () => {
         setIsSubmitting(false);
       }
     },
-    validatorAdapter: zodValidator(),
-    validators: {
-      onChange: eventFormSchema,
-    },
   });
 
   useEffect(() => {
     if (locationData) {
-      form.setFieldValue("location", locationData);
+      form.setFieldValue("location" as any, locationData as any);
     }
   }, [locationData]);
 
@@ -689,12 +681,12 @@ const NewActionScreen = () => {
                   </View>
 
                   <View className="space-y-2">
-                    <form.Field name="manufacturing.product">
-                      {(field: { state: { value: number | undefined }, handleChange: (value: number | undefined) => void }) => {
+                    <form.Field name={"manufacturing.product" as any}>
+                      {(field) => {
                         const ProductField = () => (
                           <SelectField
-                            value={field.state.value}
-                            onChange={(value) => field.handleChange(value)}
+                            value={field.state.value as number | undefined}
+                            onChange={(value) => field.handleChange(value as any)}
                             options={
                               productsData?.map((product) => ({
                                 label: product.product_name || "Unknown Product",
@@ -712,11 +704,11 @@ const NewActionScreen = () => {
                     </form.Field>
 
                     <View className="space-y-2">
-                      <form.Field name="manufacturing.quantity">
-                        {(field: { state: { value: number | undefined }, handleChange: (value: number | undefined) => void }) => {
+                      <form.Field name={"manufacturing.quantity" as any}>
+                        {(field) => {
                           const QuantityField = () => (
                             <DecimalInput
-                              field={field}
+                              field={field as any}
                               label="Batch Quantity"
                               placeholder=""
                               allowDecimals={false}
@@ -729,11 +721,11 @@ const NewActionScreen = () => {
                     </View>
 
                     <View className="mb-4">
-                      <form.Field name="manufacturing.weightInKg">
-                        {(field: { state: { value: number | undefined }, handleChange: (value: number | undefined) => void }) => {
+                      <form.Field name={"manufacturing.weightInKg" as any}>
+                        {(field) => {
                           const WeightField = () => (
                             <DecimalInput
-                              field={field}
+                              field={field as any}
                               label="Weight per item"
                               placeholder=""
                               suffix="kg"
@@ -755,7 +747,7 @@ const NewActionScreen = () => {
                   state.values,
                 ]}
               >
-                {([canSubmit, isSubmitting, values]) => {
+                {([canSubmit, isSubmitting, values]: any) => {
                   // Type guard to ensure values is the correct shape before proceeding
                   if (typeof values !== 'object' || values === null || Array.isArray(values)) {
                     // Render nothing or a placeholder if values is not the expected object

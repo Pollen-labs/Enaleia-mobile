@@ -51,7 +51,7 @@ const QueueSection = ({
 
   // Debounce retry button visibility
   useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: ReturnType<typeof setTimeout>;
     
     if (hasProcessingItems) {
       // When items start processing, hide the button immediately
@@ -72,7 +72,7 @@ const QueueSection = ({
 
   // Separate health check effect
   useEffect(() => {
-    let healthCheckInterval: NodeJS.Timeout;
+    let healthCheckInterval: ReturnType<typeof setInterval>;
     let isMounted = true;
 
     const performHealthCheck = async () => {
@@ -131,7 +131,7 @@ const QueueSection = ({
 
   // Countdown timer effect
   useEffect(() => {
-    let countdownInterval: NodeJS.Timeout;
+    let countdownInterval: ReturnType<typeof setInterval>;
     let isMounted = true;
 
     const updateCountdown = async () => {
