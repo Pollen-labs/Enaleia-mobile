@@ -88,7 +88,16 @@ export default function LoginScreen() {
               >
                 <Text>Visit Enaleia-Hub.com</Text>
               </Link>
-              .
+              . A{" "}
+              <Link
+                href="https://pollenlabs.org"
+                className="text-blue-ocean font-dm-bold underline"
+                accessibilityLabel="Visit Pollen Labs"
+                accessibilityRole="link"
+              >
+                <Text>Pollen Labs </Text> 
+              </Link>
+               creation.
             </Text>
           </View>
         </ScrollView>
