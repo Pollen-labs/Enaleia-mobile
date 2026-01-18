@@ -43,7 +43,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [lastLoggedInUser, setLastLoggedInUser] = useState<string | null>(null);
   const { isConnected, isInternetReachable } = useNetwork();
   const isOnline = isConnected && isInternetReachable;
-  const { createWallet, isWalletCreated, verifyWalletOwnership } = useWallet();
+  const { createWallet, verifyWalletOwnership } = useWallet();
 
   // Initialize auth state
   useEffect(() => {
@@ -154,8 +154,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           await updateUserWalletAddress(walletInfo.address);
           userInfo.wallet_address = walletInfo.address;
         }
-      } else if (!isWalletCreated) {
-        console.log("[Auth] Creating new wallet for user");
+      } else {
+        console.log("[Auth] Creating or restoring wallet for user");
         const walletInfo = await createWallet();
         await updateUserWalletAddress(walletInfo.address);
         userInfo.wallet_address = walletInfo.address;
