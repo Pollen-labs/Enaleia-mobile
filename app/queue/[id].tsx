@@ -199,6 +199,9 @@ export default function QueueItemDetails() {
 Collector Information:
   - ID: ${item.collectorId}
   - Name: ${collectorInfo?.collector_name || "N/A"}` : null,
+      (currentAction?.category === "Collection" && item.selectedPort) ? `
+Reception Port:
+  - Name: ${item.selectedPort.name}` : null,
       item.incomingMaterials?.length ? `
 Incoming Materials:
 ${item.incomingMaterials.map((material, index) => {
@@ -358,6 +361,25 @@ ${[
                     </Text>
                     <Text className="text-xl font-dm-bold text-enaleia-black">
                       {collectorInfo.collector_name || "N/A"}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            )}
+
+            {/* Reception Port Section (Collection only) */}
+            {currentAction?.category === "Collection" && item.selectedPort && (
+              <View className="mb-8">
+                <Text className="text-xl font-dm-light text-enaleia-black tracking-tighter mb-2">
+                  Collected at
+                </Text>
+                <View className="border border-grey-3 rounded-2xl">
+                  <View className="p-4 py-3">
+                    <Text className="text-sm font-dm-bold text-grey-6">
+                      Port Name
+                    </Text>
+                    <Text className="text-xl font-dm-bold text-enaleia-black">
+                      {item.selectedPort.name || "N/A"}
                     </Text>
                   </View>
                 </View>
