@@ -1,4 +1,5 @@
 import "@expo/metro-runtime";
+import "../global.css";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import NetInfo from "@react-native-community/netinfo";
