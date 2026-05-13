@@ -277,21 +277,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Update Directus to clear the invalid wallet address
             await updateUserWalletAddress("");
 
-            // Create new wallet if needed
-            if (!isWalletCreated) {
-              console.log("Creating new wallet after verification failure");
-              const walletInfo = await createWallet();
-              await updateUserWalletAddress(walletInfo.address);
-              userInfo.wallet_address = walletInfo.address;
-              await AsyncStorage.setItem(
-                USER_STORAGE_KEYS.USER_INFO,
-                JSON.stringify(userInfo)
-              );
-            }
+            // Create new wallet after verification failure
+            console.log("Creating or restoring wallet after verification failure");
+            const walletInfo = await createWallet();
+            await updateUserWalletAddress(walletInfo.address);
+            userInfo.wallet_address = walletInfo.address;
+            await AsyncStorage.setItem(
+              USER_STORAGE_KEYS.USER_INFO,
+              JSON.stringify(userInfo)
+            );
           }
-        } else if (!isWalletCreated) {
-          // No wallet address and no local wallet
-          console.log("Creating new wallet during auto-login");
+        } else {
+          console.log("Creating or restoring wallet during auto-login");
           const walletInfo = await createWallet();
           await updateUserWalletAddress(walletInfo.address);
           userInfo.wallet_address = walletInfo.address;
@@ -359,9 +356,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 await updateUserWalletAddress(walletInfo.address);
                 userInfo.wallet_address = walletInfo.address;
               }
-            } else if (!isWalletCreated) {
-              // No wallet address in Directus and no local wallet
-              console.log("Creating new wallet for user");
+            } else {
+              console.log("Creating or restoring wallet for user");
               const walletInfo = await createWallet();
               await updateUserWalletAddress(walletInfo.address);
               userInfo.wallet_address = walletInfo.address;
