@@ -1,12 +1,13 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Pressable,
   ScrollView,
   Text,
+  TextInput,
   View,
 } from "react-native";
-import ModalBase from "@/components/shared/ModalBase";
+import { Modal } from "@/components/shared/Modal";
 import { PortData } from "@/types/batch";
 
 interface PortSelectorProps {
@@ -27,11 +28,37 @@ export default function PortSelector({
   disabled = false,
 }: PortSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
-  const filteredPorts =
-    countryIds.length > 0
-      ? ports.filter((p) => countryIds.includes(p.country?.country_id ?? -1))
-      : ports;
+  const filteredPorts = useMemo(() => {
+    const countryFiltered =
+      countryIds.length > 0
+        ? ports.filter((p) => countryIds.includes(p.country?.country_id ?? -1))
+        : ports;
+
+    if (!searchQuery.trim()) return countryFiltered;
+
+    const query = searchQuery.toLowerCase().trim();
+    return countryFiltered.filter(
+      (p) =>
+        p.name.toLowerCase().includes(query) ||
+        (p.city && p.city.toLowerCase().includes(query)) ||
+        (p.country?.country_name &&
+          p.country.country_name.toLowerCase().includes(query))
+    );
+  }, [ports, countryIds, searchQuery]);
+
+  const groupedPorts = useMemo(() => {
+    const groups: Record<string, PortData[]> = {};
+    for (const port of filteredPorts) {
+      const countryName = port.country?.country_name || "Other";
+      if (!groups[countryName]) {
+        groups[countryName] = [];
+      }
+      groups[countryName].push(port);
+    }
+    return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
+  }, [filteredPorts]);
 
   const selectedPort = ports.find((p) => p.id === value);
 
@@ -40,6 +67,11 @@ export default function PortSelector({
       ? `${selectedPort.name} — ${selectedPort.city}`
       : selectedPort.name
     : undefined;
+
+  const handleSelect = (portId: number) => {
+    onChange(portId);
+    setIsOpen(false);
+  };
 
   return (
     <>
@@ -72,52 +104,94 @@ export default function PortSelector({
         />
       </Pressable>
 
-      <ModalBase isVisible={isOpen} onClose={() => setIsOpen(false)}>
-        <View className="pb-8 pt-4 px-4">
-          <Text className="text-xl font-dm-bold text-enaleia-black tracking-tighter text-center mb-6">
-            Collected at
-          </Text>
-          {filteredPorts.length === 0 ? (
-            <Text className="text-center text-grey-6 font-dm-regular">
-              No ports available
+      <Modal isVisible={isOpen} onClose={() => setIsOpen(false)}>
+        <View className="flex-1 bg-white rounded-t-[32px] overflow-hidden">
+          <View style={{
+            alignSelf: 'center',
+            width: 36,
+            height: 5,
+            borderRadius: 3,
+            backgroundColor: '#DDDDDD',
+            marginTop: 16,
+            marginBottom: 4,
+          }} />
+
+          <View className="px-5 pt-2 pb-2 flex-row justify-center items-center">
+            <Text className="text-3xl font-dm-bold text-enaleia-black text-center w-full">
+              Collected at
             </Text>
-          ) : (
-            <ScrollView className="max-h-96">
-              {filteredPorts.map((port) => (
-                <Pressable
-                  key={port.id}
-                  onPress={() => {
-                    onChange(port.id);
-                    setIsOpen(false);
-                  }}
-                  className="bg-white w-full px-4 py-3 rounded-2xl flex flex-row items-center justify-between border-[1.5px] border-grey-3 mb-2"
-                  accessibilityRole="menuitem"
-                  accessibilityLabel={port.name}
-                  accessibilityState={{ selected: port.id === value }}
-                >
-                  <View className="flex-1">
-                    <Text className="text-base font-dm-bold text-enaleia-black tracking-tighter">
-                      {port.name}
-                    </Text>
-                    {port.city && (
-                      <Text className="text-sm font-dm-regular text-grey-6 tracking-tighter">
-                        {port.city}
-                      </Text>
-                    )}
-                  </View>
-                  {port.id === value && (
-                    <Ionicons
-                      name="checkmark-circle"
-                      size={20}
-                      color="#0D0D0D"
-                    />
-                  )}
-                </Pressable>
-              ))}
-            </ScrollView>
-          )}
+          </View>
+
+          <View className="px-5 pb-3">
+            <View className="flex-row items-center bg-gray-100 rounded-2xl px-4 py-2">
+              <Ionicons name="search" size={18} color="#9CA3AF" />
+              <TextInput
+                className="flex-1 ml-2 text-base text-enaleia-black font-dm-regular"
+                placeholder="Search ports..."
+                placeholderTextColor="#9CA3AF"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                autoCorrect={false}
+                autoCapitalize="none"
+                returnKeyType="search"
+                clearButtonMode="while-editing"
+              />
+            </View>
+          </View>
+
+          <ScrollView
+            className="flex-1"
+            contentContainerStyle={{
+              paddingHorizontal: 20,
+              paddingBottom: 40,
+            }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {filteredPorts.length === 0 ? (
+              <Text className="text-center text-grey-6 font-dm-regular py-4">
+                {searchQuery.trim() ? "No ports match your search" : "No ports available"}
+              </Text>
+            ) : (
+              groupedPorts.map(([countryName, countryPorts]) => (
+                <View key={countryName} className="mb-4">
+                  <Text className="text-[18px] font-dm-regular text-enaleia-black tracking-tighter mb-2">
+                    {countryName}
+                  </Text>
+                  {countryPorts.map((port) => (
+                    <Pressable
+                      key={port.id}
+                      onPress={() => handleSelect(port.id)}
+                      className="bg-white w-full px-4 py-3 rounded-2xl flex flex-row items-center justify-between border-[1.5px] border-grey-3 mb-2"
+                      accessibilityRole="menuitem"
+                      accessibilityLabel={port.name}
+                      accessibilityState={{ selected: port.id === value }}
+                    >
+                      <View className="flex-1">
+                        <Text className="text-base font-dm-bold text-enaleia-black tracking-tighter">
+                          {port.name}
+                        </Text>
+                        {port.city && (
+                          <Text className="text-sm font-dm-regular text-grey-6 tracking-tighter">
+                            {port.city}
+                          </Text>
+                        )}
+                      </View>
+                      {port.id === value && (
+                        <Ionicons
+                          name="checkmark-circle"
+                          size={20}
+                          color="#0D0D0D"
+                        />
+                      )}
+                    </Pressable>
+                  ))}
+                </View>
+              ))
+            )}
+          </ScrollView>
         </View>
-      </ModalBase>
+      </Modal>
     </>
   );
 }

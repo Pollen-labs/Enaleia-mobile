@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from "react-native";
-import ModalBase from "@/components/shared/ModalBase";
+import { Modal } from "@/components/shared/Modal";
 
 interface SelectOption {
   label: string;
@@ -42,7 +42,6 @@ export default function SelectField({
 
   const selectedOption = options.find((opt) => opt.value === value);
 
-  // Group options by type
   const groupedOptions = options.reduce<GroupedOptions>((acc, option) => {
     const type = option.type || "Other";
     if (!acc[type]) {
@@ -52,11 +51,10 @@ export default function SelectField({
     return acc;
   }, {});
 
-  // Sort groups alphabetically
   const sortedGroups = Object.entries(groupedOptions)
     .sort(([a], [b]) => a.localeCompare(b))
-    .reduce((acc, [key, value]) => {
-      acc[key] = value;
+    .reduce((acc, [key, val]) => {
+      acc[key] = val;
       return acc;
     }, {} as GroupedOptions);
 
@@ -95,12 +93,34 @@ export default function SelectField({
         />
       </Pressable>
 
-      <ModalBase isVisible={isOpen} onClose={() => setIsOpen(false)}>
-        <View className="pb-8 pt-4 px-4">
-          <Text className="text-xl font-dm-bold text-enaleia-black tracking-tighter text-center mb-6">
-            {placeholder}
-          </Text>
-          <ScrollView className="max-h-96">
+      <Modal isVisible={isOpen} onClose={() => setIsOpen(false)}>
+        <View className="flex-1 bg-white rounded-t-[32px] overflow-hidden">
+          <View style={{
+            alignSelf: 'center',
+            width: 36,
+            height: 5,
+            borderRadius: 3,
+            backgroundColor: '#DDDDDD',
+            marginTop: 16,
+            marginBottom: 4,
+          }} />
+
+          <View className="px-5 pt-2 pb-2 flex-row justify-center items-center">
+            <Text className="text-3xl font-dm-bold text-enaleia-black text-center w-full">
+              {placeholder}
+            </Text>
+          </View>
+
+          <ScrollView
+            className="flex-1"
+            contentContainerStyle={{
+              paddingHorizontal: 20,
+              paddingTop: 8,
+              paddingBottom: 40,
+            }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
             {Object.entries(sortedGroups).map(([type, typeOptions]) => (
               <View key={type} className="mb-4">
                 <Text className="text-[18px] font-dm-regular text-enaleia-black tracking-tighter mb-2">
@@ -118,9 +138,7 @@ export default function SelectField({
                     accessibilityLabel={option.label}
                     accessibilityState={{ selected: option.value === value }}
                   >
-                    <Text
-                      className="text-base font-dm-bold text-enaleia-black tracking-tighter"
-                    >
+                    <Text className="text-base font-dm-bold text-enaleia-black tracking-tighter">
                       {option.label}
                     </Text>
                     {option.value === value && (
@@ -136,7 +154,7 @@ export default function SelectField({
             ))}
           </ScrollView>
         </View>
-      </ModalBase>
+      </Modal>
     </>
   );
 }

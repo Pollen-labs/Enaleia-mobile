@@ -130,8 +130,8 @@ export const Modal: React.FC<ModalProps> = ({
           style={{
             marginTop: 'auto',
             maxHeight: '95%',
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
+            borderTopLeftRadius: 32,
+            borderTopRightRadius: 32,
             borderBottomLeftRadius: 0,
             borderBottomRightRadius: 0,
             transform: [{ translateY: translateY }],
