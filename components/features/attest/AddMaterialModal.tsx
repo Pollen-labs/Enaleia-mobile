@@ -4,7 +4,6 @@ import {
   BottomSheetBackdrop,
   BottomSheetModal,
   BottomSheetScrollView,
-  BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import {
@@ -137,34 +136,32 @@ export default function AddMaterialModal({
       handleIndicatorStyle={styles.handleIndicator}
       backgroundStyle={styles.sheetBackground}
     >
-      <BottomSheetView style={styles.sheetContent}>
-        <View className="px-5 pt-2 pb-2 flex-row justify-center items-center">
-          <Text className="text-3xl font-dm-bold text-enaleia-black text-center w-full">
-            Select Material
-          </Text>
-        </View>
+      <View className="px-5 pt-2 pb-2 flex-row justify-center items-center">
+        <Text className="text-3xl font-dm-bold text-enaleia-black text-center w-full">
+          Select Material
+        </Text>
+      </View>
 
-        <BottomSheetScrollView
-          style={styles.scrollView}
-          contentContainerStyle={{
-            paddingHorizontal: 20,
-            paddingTop: 8,
-            paddingBottom: 40,
-          }}
-          keyboardShouldPersistTaps="handled"
-          showsVerticalScrollIndicator={false}
-        >
-          {materials.map(({ label, value }) => (
-            <SelectMaterialItem
-              key={value}
-              label={label as MaterialNames}
-              value={value}
-              isSelected={selectedIds.includes(value)}
-              handleAddMaterial={handleAddMaterial}
-            />
-          ))}
-        </BottomSheetScrollView>
-      </BottomSheetView>
+      <BottomSheetScrollView
+        style={styles.scrollView}
+        contentContainerStyle={{
+          paddingHorizontal: 20,
+          paddingTop: 8,
+          paddingBottom: 40,
+        }}
+        keyboardShouldPersistTaps="handled"
+        showsVerticalScrollIndicator={false}
+      >
+        {materials.map(({ label, value }) => (
+          <SelectMaterialItem
+            key={value}
+            label={label as MaterialNames}
+            value={value}
+            isSelected={selectedIds.includes(value)}
+            handleAddMaterial={handleAddMaterial}
+          />
+        ))}
+      </BottomSheetScrollView>
     </BottomSheetModal>
   );
 }
@@ -174,10 +171,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     borderTopLeftRadius: 32,
     borderTopRightRadius: 32,
-  },
-  sheetContent: {
-    paddingTop: 8,
-    flex: 1,
   },
   handleIndicator: {
     backgroundColor: "#DDDDDD",

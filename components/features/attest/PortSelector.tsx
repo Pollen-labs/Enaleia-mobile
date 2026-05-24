@@ -4,7 +4,6 @@ import {
   BottomSheetModal,
   BottomSheetScrollView,
   BottomSheetTextInput,
-  BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
@@ -147,82 +146,80 @@ export default function PortSelector({
         handleIndicatorStyle={styles.handleIndicator}
         backgroundStyle={styles.sheetBackground}
       >
-        <BottomSheetView style={styles.sheetContent}>
-          <BottomSheetScrollView
-            style={styles.scrollView}
-            contentContainerStyle={{
-              paddingHorizontal: 20,
-              paddingTop: 8,
-              paddingBottom: 40,
-            }}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
-            <View className="pt-2 pb-2 flex-row justify-center items-center">
-              <Text className="text-3xl font-dm-bold text-enaleia-black text-center w-full">
-                Collected at
-              </Text>
-            </View>
+        <BottomSheetScrollView
+          style={styles.scrollView}
+          contentContainerStyle={{
+            paddingHorizontal: 20,
+            paddingTop: 8,
+            paddingBottom: 40,
+          }}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
+        >
+          <View className="pt-2 pb-2 flex-row justify-center items-center">
+            <Text className="text-3xl font-dm-bold text-enaleia-black text-center w-full">
+              Collected at
+            </Text>
+          </View>
 
-            <View className="pb-3">
-              <View className="flex-row items-center bg-gray-100 rounded-2xl px-4 py-2">
-                <Ionicons name="search" size={18} color="#9CA3AF" />
-                <BottomSheetTextInput
-                  style={styles.searchInput}
-                  placeholder="Search ports..."
-                  placeholderTextColor="#9CA3AF"
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                  autoCorrect={false}
-                  autoCapitalize="none"
-                  returnKeyType="search"
-                />
-              </View>
+          <View className="pb-3">
+            <View className="flex-row items-center bg-gray-100 rounded-2xl px-4 py-2">
+              <Ionicons name="search" size={18} color="#9CA3AF" />
+              <BottomSheetTextInput
+                style={styles.searchInput}
+                placeholder="Search ports..."
+                placeholderTextColor="#9CA3AF"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+                autoCorrect={false}
+                autoCapitalize="none"
+                returnKeyType="search"
+              />
             </View>
+          </View>
 
-            {filteredPorts.length === 0 ? (
-              <Text className="text-center text-grey-6 font-dm-regular py-4">
-                {searchQuery.trim() ? "No ports match your search" : "No ports available"}
-              </Text>
-            ) : (
-              groupedPorts.map(([countryName, countryPorts]) => (
-                <View key={countryName} className="mb-4">
-                  <Text className="text-[18px] font-dm-regular text-enaleia-black tracking-tighter mb-2">
-                    {countryName}
-                  </Text>
-                  {countryPorts.map((port) => (
-                    <Pressable
-                      key={port.id}
-                      onPress={() => handleSelect(port.id)}
-                      className="bg-white w-full px-4 py-3 rounded-2xl flex flex-row items-center justify-between border-[1.5px] border-grey-3 mb-2"
-                      accessibilityRole="menuitem"
-                      accessibilityLabel={port.name}
-                      accessibilityState={{ selected: port.id === value }}
-                    >
-                      <View className="flex-1">
-                        <Text className="text-base font-dm-bold text-enaleia-black tracking-tighter">
-                          {port.name}
+          {filteredPorts.length === 0 ? (
+            <Text className="text-center text-grey-6 font-dm-regular py-4">
+              {searchQuery.trim() ? "No ports match your search" : "No ports available"}
+            </Text>
+          ) : (
+            groupedPorts.map(([countryName, countryPorts]) => (
+              <View key={countryName} className="mb-4">
+                <Text className="text-[18px] font-dm-regular text-enaleia-black tracking-tighter mb-2">
+                  {countryName}
+                </Text>
+                {countryPorts.map((port) => (
+                  <Pressable
+                    key={port.id}
+                    onPress={() => handleSelect(port.id)}
+                    className="bg-white w-full px-4 py-3 rounded-2xl flex flex-row items-center justify-between border-[1.5px] border-grey-3 mb-2"
+                    accessibilityRole="menuitem"
+                    accessibilityLabel={port.name}
+                    accessibilityState={{ selected: port.id === value }}
+                  >
+                    <View className="flex-1">
+                      <Text className="text-base font-dm-bold text-enaleia-black tracking-tighter">
+                        {port.name}
+                      </Text>
+                      {port.city && (
+                        <Text className="text-sm font-dm-regular text-grey-6 tracking-tighter">
+                          {port.city}
                         </Text>
-                        {port.city && (
-                          <Text className="text-sm font-dm-regular text-grey-6 tracking-tighter">
-                            {port.city}
-                          </Text>
-                        )}
-                      </View>
-                      {port.id === value && (
-                        <Ionicons
-                          name="checkmark-circle"
-                          size={20}
-                          color="#0D0D0D"
-                        />
                       )}
-                    </Pressable>
-                  ))}
-                </View>
-              ))
-            )}
-          </BottomSheetScrollView>
-        </BottomSheetView>
+                    </View>
+                    {port.id === value && (
+                      <Ionicons
+                        name="checkmark-circle"
+                        size={20}
+                        color="#0D0D0D"
+                      />
+                    )}
+                  </Pressable>
+                ))}
+              </View>
+            ))
+          )}
+        </BottomSheetScrollView>
       </BottomSheetModal>
     </>
   );
