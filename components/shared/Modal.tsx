@@ -19,11 +19,12 @@ export const Modal: React.FC<ModalProps> = ({
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(Dimensions.get('window').height)).current;
   const dragY = useRef(new Animated.Value(0)).current;
+  const openedAtRef = useRef(0);
 
   // Create pan responder for swipe gestures
   const panResponder = useRef(
     PanResponder.create({
-      onStartShouldSetPanResponder: () => true,
+      onStartShouldSetPanResponder: () => false,
       onMoveShouldSetPanResponder: (_, gestureState) => {
         // Only handle vertical gestures that are moving downward
         return Math.abs(gestureState.dy) > Math.abs(gestureState.dx) && gestureState.dy > 0;
@@ -55,7 +56,15 @@ export const Modal: React.FC<ModalProps> = ({
   const translateY = Animated.add(slideAnim, dragY);
 
   // Function to close the modal with animation
-  const closeModal = () => {
+  const closeModal = (source: 'backdrop' | 'swipe' | 'request' = 'request') => {
+    if (
+      source === 'backdrop' &&
+      openedAtRef.current > 0 &&
+      Date.now() - openedAtRef.current < 300
+    ) {
+      return;
+    }
+
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 0,
@@ -75,6 +84,8 @@ export const Modal: React.FC<ModalProps> = ({
 
   useEffect(() => {
     if (isVisible) {
+      openedAtRef.current = Date.now();
+
       // Reset the drag position
       dragY.setValue(0);
       
@@ -103,9 +114,10 @@ export const Modal: React.FC<ModalProps> = ({
     <RNModal
       transparent={true}
       visible={isVisible}
-      onRequestClose={closeModal}
+      onRequestClose={() => closeModal('request')}
       statusBarTranslucent={Platform.OS === 'android'}
       animationType="none"
+      presentationStyle={Platform.OS === 'ios' ? 'overFullScreen' : undefined}
     >
       <Animated.View 
         className="flex-1"
@@ -122,7 +134,7 @@ export const Modal: React.FC<ModalProps> = ({
       >
         <Pressable
           className="absolute inset-0"
-          onPress={closeModal}
+          onPress={() => closeModal('backdrop')}
         />
         
         <Animated.View 

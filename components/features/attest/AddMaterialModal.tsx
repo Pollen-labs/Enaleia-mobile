@@ -1,14 +1,19 @@
 import { MaterialDetail, MaterialNames, MaterialsData } from "@/types/material";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useCallback } from "react";
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetScrollView,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import {
   Keyboard,
-  ScrollView,
+  Pressable,
+  StyleSheet,
   Text,
   View,
-  Pressable,
 } from "react-native";
-import { Modal } from "@/components/shared/Modal";
 
 const SelectMaterialItem = React.memo(
   ({
@@ -61,9 +66,40 @@ export default function AddMaterialModal({
   setSelectedMaterials: (materials: MaterialDetail[]) => void;
   onMaterialSelect?: () => Promise<void>;
 }) {
-  const selectedIds = (selectedMaterials || []).map((m) => m.id);
+  const sheetRef = useRef<BottomSheetModal>(null);
+  const hasPresentedRef = useRef(false);
+  const selectedIds = useMemo(
+    () => (selectedMaterials || []).map((m) => m.id),
+    [selectedMaterials]
+  );
+  const snapPoints = useMemo(() => ["80%"], []);
 
-  const handleAddMaterial = async (materialId: number) => {
+  useEffect(() => {
+    if (!isVisible || hasPresentedRef.current) {
+      return;
+    }
+
+    hasPresentedRef.current = true;
+    const frame = requestAnimationFrame(() => {
+      sheetRef.current?.present();
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [isVisible]);
+
+  const renderBackdrop = useCallback(
+    (props: React.ComponentProps<typeof BottomSheetBackdrop>) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        pressBehavior="close"
+      />
+    ),
+    []
+  );
+
+  const handleAddMaterial = useCallback(async (materialId: number) => {
     if (selectedIds.includes(materialId)) return;
 
     const currentMaterials = selectedMaterials || [];
@@ -78,33 +114,38 @@ export default function AddMaterialModal({
     setSelectedMaterials(newMaterialDetails);
     Keyboard.dismiss();
     onClose();
+    sheetRef.current?.dismiss();
 
     if (onMaterialSelect) {
       await onMaterialSelect();
     }
-  };
+  }, [onClose, onMaterialSelect, selectedIds, selectedMaterials, setSelectedMaterials]);
+
+  if (!isVisible) {
+    hasPresentedRef.current = false;
+    return null;
+  }
 
   return (
-    <Modal isVisible={isVisible} onClose={onClose}>
-      <View className="flex-1 bg-white rounded-t-[32px] overflow-hidden">
-        <View style={{
-          alignSelf: 'center',
-          width: 36,
-          height: 5,
-          borderRadius: 3,
-          backgroundColor: '#DDDDDD',
-          marginTop: 16,
-          marginBottom: 4,
-        }} />
-
+    <BottomSheetModal
+      ref={sheetRef}
+      index={0}
+      snapPoints={snapPoints}
+      enablePanDownToClose
+      backdropComponent={renderBackdrop}
+      onDismiss={onClose}
+      handleIndicatorStyle={styles.handleIndicator}
+      backgroundStyle={styles.sheetBackground}
+    >
+      <BottomSheetView style={styles.sheetContent}>
         <View className="px-5 pt-2 pb-2 flex-row justify-center items-center">
           <Text className="text-3xl font-dm-bold text-enaleia-black text-center w-full">
             Select Material
           </Text>
         </View>
 
-        <ScrollView
-          className="flex-1"
+        <BottomSheetScrollView
+          style={styles.scrollView}
           contentContainerStyle={{
             paddingHorizontal: 20,
             paddingTop: 8,
@@ -122,8 +163,28 @@ export default function AddMaterialModal({
               handleAddMaterial={handleAddMaterial}
             />
           ))}
-        </ScrollView>
-      </View>
-    </Modal>
+        </BottomSheetScrollView>
+      </BottomSheetView>
+    </BottomSheetModal>
   );
 }
+
+const styles = StyleSheet.create({
+  sheetBackground: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+  },
+  sheetContent: {
+    paddingTop: 8,
+    flex: 1,
+  },
+  handleIndicator: {
+    backgroundColor: "#DDDDDD",
+    width: 36,
+    height: 5,
+  },
+  scrollView: {
+    flex: 1,
+  },
+});

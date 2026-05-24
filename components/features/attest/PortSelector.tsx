@@ -1,13 +1,18 @@
 import { Ionicons } from "@expo/vector-icons";
-import React, { useState, useMemo } from "react";
+import {
+  BottomSheetBackdrop,
+  BottomSheetModal,
+  BottomSheetScrollView,
+  BottomSheetTextInput,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import {
   Pressable,
-  ScrollView,
+  StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
-import { Modal } from "@/components/shared/Modal";
 import { PortData } from "@/types/batch";
 
 interface PortSelectorProps {
@@ -27,8 +32,9 @@ export default function PortSelector({
   isLoading = false,
   disabled = false,
 }: PortSelectorProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const sheetRef = useRef<BottomSheetModal>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const snapPoints = useMemo(() => ["85%"], []);
 
   const filteredPorts = useMemo(() => {
     const countryFiltered =
@@ -68,15 +74,40 @@ export default function PortSelector({
       : selectedPort.name
     : undefined;
 
-  const handleSelect = (portId: number) => {
-    onChange(portId);
-    setIsOpen(false);
-  };
+  const presentSheet = useCallback(() => {
+    if (!disabled && !isLoading) {
+      sheetRef.current?.present();
+    }
+  }, [disabled, isLoading]);
+
+  const dismissSheet = useCallback(() => {
+    sheetRef.current?.dismiss();
+  }, []);
+
+  const handleSelect = useCallback(
+    (portId: number) => {
+      onChange(portId);
+      dismissSheet();
+    },
+    [dismissSheet, onChange]
+  );
+
+  const renderBackdrop = useCallback(
+    (props: React.ComponentProps<typeof BottomSheetBackdrop>) => (
+      <BottomSheetBackdrop
+        {...props}
+        disappearsOnIndex={-1}
+        appearsOnIndex={0}
+        pressBehavior="close"
+      />
+    ),
+    []
+  );
 
   return (
     <>
       <Pressable
-        onPress={() => !disabled && !isLoading && setIsOpen(true)}
+        onPress={presentSheet}
         className={`flex-row items-center justify-between rounded-2xl p-2 px-4 h-[65px] bg-white border-[1.5px] ${
           disabled || isLoading ? "border-grey-3 opacity-50" : "border-grey-3"
         }`}
@@ -104,50 +135,51 @@ export default function PortSelector({
         />
       </Pressable>
 
-      <Modal isVisible={isOpen} onClose={() => setIsOpen(false)}>
-        <View className="flex-1 bg-white rounded-t-[32px] overflow-hidden">
-          <View style={{
-            alignSelf: 'center',
-            width: 36,
-            height: 5,
-            borderRadius: 3,
-            backgroundColor: '#DDDDDD',
-            marginTop: 16,
-            marginBottom: 4,
-          }} />
-
-          <View className="px-5 pt-2 pb-2 flex-row justify-center items-center">
-            <Text className="text-3xl font-dm-bold text-enaleia-black text-center w-full">
-              Collected at
-            </Text>
-          </View>
-
-          <View className="px-5 pb-3">
-            <View className="flex-row items-center bg-gray-100 rounded-2xl px-4 py-2">
-              <Ionicons name="search" size={18} color="#9CA3AF" />
-              <TextInput
-                className="flex-1 ml-2 text-base text-enaleia-black font-dm-regular"
-                placeholder="Search ports..."
-                placeholderTextColor="#9CA3AF"
-                value={searchQuery}
-                onChangeText={setSearchQuery}
-                autoCorrect={false}
-                autoCapitalize="none"
-                returnKeyType="search"
-                clearButtonMode="while-editing"
-              />
-            </View>
-          </View>
-
-          <ScrollView
-            className="flex-1"
+      <BottomSheetModal
+        ref={sheetRef}
+        index={0}
+        snapPoints={snapPoints}
+        enablePanDownToClose
+        android_keyboardInputMode="adjustResize"
+        keyboardBehavior="interactive"
+        backdropComponent={renderBackdrop}
+        onDismiss={() => setSearchQuery("")}
+        handleIndicatorStyle={styles.handleIndicator}
+        backgroundStyle={styles.sheetBackground}
+      >
+        <BottomSheetView style={styles.sheetContent}>
+          <BottomSheetScrollView
+            style={styles.scrollView}
             contentContainerStyle={{
               paddingHorizontal: 20,
+              paddingTop: 8,
               paddingBottom: 40,
             }}
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
+            <View className="pt-2 pb-2 flex-row justify-center items-center">
+              <Text className="text-3xl font-dm-bold text-enaleia-black text-center w-full">
+                Collected at
+              </Text>
+            </View>
+
+            <View className="pb-3">
+              <View className="flex-row items-center bg-gray-100 rounded-2xl px-4 py-2">
+                <Ionicons name="search" size={18} color="#9CA3AF" />
+                <BottomSheetTextInput
+                  style={styles.searchInput}
+                  placeholder="Search ports..."
+                  placeholderTextColor="#9CA3AF"
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                  autoCorrect={false}
+                  autoCapitalize="none"
+                  returnKeyType="search"
+                />
+              </View>
+            </View>
+
             {filteredPorts.length === 0 ? (
               <Text className="text-center text-grey-6 font-dm-regular py-4">
                 {searchQuery.trim() ? "No ports match your search" : "No ports available"}
@@ -189,9 +221,36 @@ export default function PortSelector({
                 </View>
               ))
             )}
-          </ScrollView>
-        </View>
-      </Modal>
+          </BottomSheetScrollView>
+        </BottomSheetView>
+      </BottomSheetModal>
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  sheetBackground: {
+    backgroundColor: "#FFFFFF",
+    borderTopLeftRadius: 32,
+    borderTopRightRadius: 32,
+  },
+  sheetContent: {
+    paddingTop: 8,
+    flex: 1,
+  },
+  handleIndicator: {
+    backgroundColor: "#DDDDDD",
+    width: 36,
+    height: 5,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  searchInput: {
+    flex: 1,
+    marginLeft: 8,
+    fontSize: 16,
+    color: "#0D0D0D",
+    fontFamily: "DMSans-Regular",
+  },
+});
