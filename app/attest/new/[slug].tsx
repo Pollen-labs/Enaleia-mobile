@@ -730,7 +730,7 @@ const NewActionScreen = () => {
                     </View>
                   </View>
 
-                  <View className="space-y-2">
+                  <View className="gap-2">
                     <form.Field name={"manufacturing.product" as any}>
                       {(field) => {
                         const ProductField = () => (
@@ -753,38 +753,34 @@ const NewActionScreen = () => {
                       }}
                     </form.Field>
 
-                    <View className="space-y-2">
-                      <form.Field name={"manufacturing.quantity" as any}>
-                        {(field) => {
-                          const QuantityField = () => (
-                            <DecimalInput
-                              field={field as any}
-                              label="Batch Quantity"
-                              placeholder=""
-                              allowDecimals={false}
-                              suffix="Unit"
-                            />
-                          );
-                          return <QuantityField />;
-                        }}
-                      </form.Field>
-                    </View>
+                    <form.Field name={"manufacturing.quantity" as any}>
+                      {(field) => {
+                        const QuantityField = () => (
+                          <DecimalInput
+                            field={field as any}
+                            label="Batch Quantity"
+                            placeholder=""
+                            allowDecimals={false}
+                            suffix="Unit"
+                          />
+                        );
+                        return <QuantityField />;
+                      }}
+                    </form.Field>
 
-                    <View className="mb-4">
-                      <form.Field name={"manufacturing.weightInKg" as any}>
-                        {(field) => {
-                          const WeightField = () => (
-                            <DecimalInput
-                              field={field as any}
-                              label="Weight per item"
-                              placeholder=""
-                              suffix="kg"
-                            />
-                          );
-                          return <WeightField />;
-                        }}
-                      </form.Field>
-                    </View>
+                    <form.Field name={"manufacturing.weightInKg" as any}>
+                      {(field) => {
+                        const WeightField = () => (
+                          <DecimalInput
+                            field={field as any}
+                            label="Weight per item"
+                            placeholder=""
+                            suffix="kg"
+                          />
+                        );
+                        return <WeightField />;
+                      }}
+                    </form.Field>
                   </View>
                 </View>
               )}
