@@ -44,7 +44,7 @@ export const Modal: React.FC<ModalProps> = ({
             toValue: 0,
             tension: 80,
             friction: 12,
-            useNativeDriver: true,
+            useNativeDriver: false,
           }).start();
         }
       },
@@ -65,7 +65,7 @@ export const Modal: React.FC<ModalProps> = ({
       Animated.timing(slideAnim, {
         toValue: Dimensions.get('window').height,
         duration: 250,
-        useNativeDriver: true,
+        useNativeDriver: false,
       }),
     ]).start(() => {
       onClose();
@@ -90,7 +90,7 @@ export const Modal: React.FC<ModalProps> = ({
         toValue: 0,
         tension: 65,
         friction: 11,
-        useNativeDriver: true,
+        useNativeDriver: false,
       }).start();
     } else {
       // Reset animations when modal is hidden
