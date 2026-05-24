@@ -2,6 +2,7 @@
   "name": "enaleia",
   "main": "index",
   "version": "1.0.0",
+  "packageManager": "pnpm@10.12.4",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",

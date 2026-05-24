@@ -12,7 +12,6 @@
       "policy": "sdkVersion"
     },
     "ios": {
-      "jsEngine": "jsc",
       "supportsTablet": true,
       "bundleIdentifier": "com.anonymous.enaleia",
       "infoPlist": {
