@@ -12,14 +12,8 @@ export async function openWebUrl(url: string) {
     return;
   }
 
-  if (Platform.OS === "ios") {
-    await WebBrowser.openAuthSessionAsync(url);
-  } else {
-    const canOpen = await Linking.canOpenURL(url);
-    if (canOpen) {
-      await Linking.openURL(url);
-    } else {
-      Alert.alert("Error", "Unable to open the link at the moment.");
-    }
+  const result = await WebBrowser.openBrowserAsync(url);
+  if (result.type === "cancel" && Platform.OS === "ios") {
+    // User dismissed the Safari View Controller — no action needed
   }
 }
